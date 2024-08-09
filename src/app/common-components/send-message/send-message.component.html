@@ -1,0 +1,91 @@
+<div class="container">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h1 class="card-title text-center mb-4">
+        <ng-container *ngIf="isAdmin; else nonAdmin">
+          Admin Dashboard
+        </ng-container>
+        <ng-template #nonAdmin>
+          User Dashboard
+        </ng-template>
+      </h1>
+      <div class="d-flex flex-wrap justify-content-center mb-4">
+        <a routerLink="/inbox" class="btn btn-danger m-2">Inbox</a>
+        <a routerLink="/outbox" class="btn btn-danger m-2">Outbox</a>
+        <a routerLink="/send-message" class="btn btn-danger m-2 custom-disabled-btn">Send Message</a>
+        <a *ngIf="isAdmin" routerLink="/user-list" class="btn btn-danger m-2">View Users</a>
+        <a *ngIf="isAdmin" routerLink="/edit-create-user" class="btn btn-danger m-2">Create User</a>
+        <a *ngIf="isAdmin" routerLink="/log" class="btn btn-danger m-2">Logs</a>
+        <button class="btn btn-dark m-2" (click)="this.authService.logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Send Message</h1>
+  <form (ngSubmit)="sendMessage()" class="needs-validation" novalidate>
+    <div class="mb-3">
+      <label for="receiver" class="form-label">Receiver:</label>
+      <input
+        type="text"
+        id="receiver"
+        [(ngModel)]="newMessageReceiver"
+        name="receiver"
+        class="form-control"
+        (input)="onReceiverInput()"
+        required
+        autocomplete="off"
+      />
+      <div *ngIf="filteredUsers.length > 0" class="dropdown-menu show w-auto">
+        <div *ngFor="let user of filteredUsers" (click)="selectReceiver(user.username)" class="dropdown-item">
+          {{ user.username }}
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="content" class="form-label">Content:</label>
+      <textarea
+        id="content"
+        [(ngModel)]="newMessageContent"
+        name="content"
+        class="form-control"
+        rows="4"
+        required>
+      </textarea>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-danger" style="margin-bottom: 350px; margin-top: 50px">Send</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  .dropdown-menu.show {
+    display: block;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+  }
+
+  .dropdown-item:hover {
+    background-color: #f1f1f1;
+  }
+
+  .custom-disabled-btn {
+    background-color: #960028; /* Darker shade of danger */
+    border-color: #960028;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .custom-disabled-btn:hover,
+  .custom-disabled-btn:focus,
+  .custom-disabled-btn:active {
+    background-color: #960028; /* Keep the same color on hover, focus, and active states */
+    border-color: #960028;
+    box-shadow: none;
+  }
+</style>

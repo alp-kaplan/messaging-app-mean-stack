@@ -1,0 +1,164 @@
+<div class="container">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h1 class="card-title text-center mb-4">
+        <ng-container *ngIf="isAdmin; else nonAdmin">
+          Admin Dashboard
+        </ng-container>
+        <ng-template #nonAdmin>
+          User Dashboard
+        </ng-template>
+      </h1>
+      <div class="d-flex flex-wrap justify-content-center mb-4">
+        <a routerLink="/inbox" class="btn btn-danger m-2 custom-disabled-btn">Inbox</a>
+        <a routerLink="/outbox" class="btn btn-danger m-2">Outbox</a>
+        <a routerLink="/send-message" class="btn btn-danger m-2">Send Message</a>
+        <a *ngIf="isAdmin" routerLink="/user-list" class="btn btn-danger m-2">View Users</a>
+        <a *ngIf="isAdmin" routerLink="/edit-create-user" class="btn btn-danger m-2">Create User</a>
+        <a *ngIf="isAdmin" routerLink="/log" class="btn btn-danger m-2">Logs</a>
+        <button class="btn btn-dark m-2" (click)="this.authService.logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h1 class="text-center my-4">Inbox</h1>
+  <div class="container">
+    <table class="table table-striped table-hover table-bordered">
+      <thead class="table-danger">
+      <tr>
+        <th scope="col" (click)="sortMessages('sender')">From <span [ngClass]="getSortArrowClass('sender')"></span></th>
+        <th scope="col" (click)="sortMessages('content')">Message <span [ngClass]="getSortArrowClass('content')"></span></th>
+        <th scope="col" (click)="sortMessages('timestamp')">Time <span [ngClass]="getSortArrowClass('timestamp')"></span></th>
+        <th scope="col">Actions</th>
+      </tr>
+      <tr>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterSender" (input)="onFilterChange()" placeholder="Filter by sender" />
+        </th>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterContent" (input)="onFilterChange()" placeholder="Filter by content" />
+        </th>
+        <th>
+          Start date:
+          <input type="date" class="form-control" [(ngModel)]="startDate" (change)="onFilterChange()" placeholder="Start date" />
+          End date:
+          <input type="date" class="form-control" [(ngModel)]="endDate" (change)="onFilterChange()" placeholder="End date" />
+        </th>
+        <th></th>
+      </tr>
+      </thead>
+
+      <tbody *ngIf="inboxMessages.length > 0">
+      <tr *ngFor="let message of inboxMessages">
+        <td>{{ message.sender }}</td>
+        <td>{{ message.content }}</td>
+        <td>{{ message.timestamp | date:'MM/dd/yyyy, HH:mm' }}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" (click)="deleteMessage(message._id)">Delete</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h4 *ngIf="inboxMessages.length <= 0" class="text-center my-4">
+      There are no messages to be displayed!
+    </h4>
+
+    <div class="pagination-controls my-3">
+      <button
+        class="btn btn-outline-danger btn-sm"
+        (click)="pageChanged(p - 1)"
+        [disabled]="!canGoPrevious()"
+      >
+        Previous
+      </button>
+      <span class="mx-2">
+        Page:
+        <select
+          class="form-select form-select-sm d-inline-block w-auto"
+          [ngModel]="p"
+          (ngModelChange)="pageChanged($event)"
+        >
+          <option *ngFor="let page of pages" [value]="page">{{ page }}</option>
+        </select>
+        of {{ totalPages }}
+      </span>
+      <button
+        class="btn btn-outline-danger btn-sm"
+        (click)="pageChanged(p + 1)"
+        [disabled]="!canGoNext()"
+      >
+        Next
+      </button>
+    </div>
+
+    <div class="items-per-page text-center mt-3">
+      <label for="itemsPerPage" class="form-label me-2">Items per page:</label>
+      <input
+        id="itemsPerPage"
+        type="number"
+        class="form-control d-inline-block"
+        [(ngModel)]="itemsPerPage"
+        (change)="itemsPerPageChanged()"
+        style="width: 100px;"
+      />
+    </div>
+
+    <p *ngIf="inboxMessages.length > 0" class="text-center mt-3">
+      Total number of messages: {{ totalMessages }}
+    </p>
+  </div>
+
+</div>
+
+<style>
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pagination-controls button {
+    margin: 0 5px;
+  }
+
+  .pagination-controls select {
+    margin-left: 10px;
+  }
+
+  .sort-arrow {
+    font-size: 12px;
+    margin-left: 5px;
+  }
+
+  .sort-asc::after {
+    content: '▲';
+  }
+
+  .sort-desc::after {
+    content: '▼';
+  }
+
+  .items-per-page .form-control {
+    display: inline-block;
+    width: auto;
+    margin-left: 10px;
+  }
+
+  .custom-disabled-btn {
+    background-color: #960028; /* Darker shade of danger */
+    border-color: #960028;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .custom-disabled-btn:hover,
+  .custom-disabled-btn:focus,
+  .custom-disabled-btn:active {
+    background-color: #960028; /* Keep the same color on hover, focus, and active states */
+    border-color: #960028;
+    box-shadow: none;
+  }
+</style>

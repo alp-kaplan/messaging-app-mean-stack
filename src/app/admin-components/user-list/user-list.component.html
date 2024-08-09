@@ -1,0 +1,198 @@
+<div class="container">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h1 class="card-title text-center mb-4">Admin Dashboard</h1>
+      <div class="d-flex flex-wrap justify-content-center mb-4">
+        <a routerLink="/inbox" class="btn btn-danger m-2">Inbox</a>
+        <a routerLink="/outbox" class="btn btn-danger m-2">Outbox</a>
+        <a routerLink="/send-message" class="btn btn-danger m-2">Send Message</a>
+        <a routerLink="/user-list" class="btn btn-danger m-2 custom-disabled-btn">View Users</a>
+        <a routerLink="/edit-create-user" class="btn btn-danger m-2">Create User</a>
+        <a routerLink="/log" class="btn btn-danger m-2">Logs</a>
+        <button class="btn btn-dark m-2" (click)="this.authService.logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h1 class="text-center my-4">User List</h1>
+  <div class="container">
+
+    <!-- User list -->
+    <table class="table table-striped table-hover table-bordered">
+      <thead class="table-danger">
+      <tr>
+        <th scope="col" (click)="sortUsers('username')">Username <span [ngClass]="getSortArrowClass('username')"></span></th>
+        <th scope="col" (click)="sortUsers('name')">Name <span [ngClass]="getSortArrowClass('name')"></span></th>
+        <th scope="col" (click)="sortUsers('surname')">Surname <span [ngClass]="getSortArrowClass('surname')"></span></th>
+        <th scope="col" (click)="sortUsers('birthdate')">Birthdate <span [ngClass]="getSortArrowClass('birthdate')"></span></th>
+        <th scope="col" (click)="sortUsers('gender')">Gender <span [ngClass]="getSortArrowClass('gender')"></span></th>
+        <th scope="col" (click)="sortUsers('email')">Email <span [ngClass]="getSortArrowClass('email')"></span></th>
+        <th scope="col" (click)="sortUsers('location')">Location <span [ngClass]="getSortArrowClass('location')"></span></th>
+        <th scope="col" (click)="sortUsers('isAdmin')">Admin? <span [ngClass]="getSortArrowClass('isAdmin')"></span></th>
+        <th scope="col">Actions</th>
+      </tr>
+      <tr>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterUsername" (input)="onFilterChange()" placeholder="Filter by username" />
+        </th>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterName" (input)="onFilterChange()" placeholder="Filter by name" />
+        </th>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterSurname" (input)="onFilterChange()" placeholder="Filter by surname" />
+        </th>
+        <th>
+          Start date:
+          <input type="date" class="form-control" [(ngModel)]="startDate" (change)="onFilterChange()" placeholder="Start date" />
+          End date:
+          <input type="date" class="form-control" [(ngModel)]="endDate" (change)="onFilterChange()" placeholder="End date" />
+        </th>
+        <th>
+          <select class="form-select" [(ngModel)]="filterGender" (change)="onFilterChange()">
+            <option value="">All</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </th>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterEmail" (input)="onFilterChange()" placeholder="Filter by email" />
+        </th>
+        <th>
+          <input type="text" class="form-control" [(ngModel)]="filterLocation" (input)="onFilterChange()" placeholder="Filter by location" />
+        </th>
+        <th>
+          <select class="form-select" [(ngModel)]="filterAdmin" (change)="onFilterChange()">
+            <option value="all">All</option>
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </select>
+        </th>
+        <th></th>
+      </tr>
+      </thead>
+
+      <tbody *ngIf="User.length > 0">
+      <tr *ngFor="let user of User">
+        <td>{{ user.username }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.surname }}</td>
+        <td>{{ user.birthdate | date:'MM/dd/yyyy' }}</td>
+        <td>{{ user.gender }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.location }}</td>
+        <td>{{ user.isAdmin }}</td>
+        <td class="text-center edit-block">
+            <span class="edit">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="onEdit(user._id)">Edit</button>
+            </span>
+          <span class="delete" (click)="removeUser(user)">
+              <button type="button" class="btn btn-danger btn-sm">Delete</button>
+            </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h4 *ngIf="User.length <= 0" class="text-center my-4">
+      There are no users to be displayed!
+    </h4>
+
+    <div class="pagination-controls my-3">
+      <button
+        class="btn btn-outline-danger btn-sm"
+        (click)="pageChanged(p - 1)"
+        [disabled]="!canGoPrevious()"
+      >
+        Previous
+      </button>
+      <span class="mx-2">
+        Page:
+        <select
+          class="form-select form-select-sm d-inline-block w-auto"
+          [ngModel]="p"
+          (ngModelChange)="pageChanged($event)"
+        >
+          <option *ngFor="let page of pages" [value]="page">{{ page }}</option>
+        </select>
+        of {{ totalPages }}
+      </span>
+      <button
+        class="btn btn-outline-danger btn-sm"
+        (click)="pageChanged(p + 1)"
+        [disabled]="!canGoNext()"
+      >
+        Next
+      </button>
+    </div>
+
+    <div class="items-per-page text-center mt-3">
+      <label for="itemsPerPage" class="form-label me-2">Items per page:</label>
+      <input
+        id="itemsPerPage"
+        type="number"
+        class="form-control d-inline-block"
+        [(ngModel)]="itemsPerPage"
+        (change)="itemsPerPageChanged()"
+        style="width: 100px;"
+      />
+    </div>
+
+    <p *ngIf="User.length > 0" class="text-center mt-3">
+      Total number of users: {{ totalUsers }}
+    </p>
+  </div>
+
+</div>
+
+<style>
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pagination-controls button {
+    margin: 0 5px;
+  }
+
+  .pagination-controls select {
+    margin-left: 10px;
+  }
+
+  .sort-arrow {
+    font-size: 12px;
+    margin-left: 5px;
+  }
+
+  .sort-asc::after {
+    content: '▲';
+  }
+
+  .sort-desc::after {
+    content: '▼';
+  }
+
+  .items-per-page .form-control {
+    display: inline-block;
+    width: auto;
+    margin-left: 10px;
+  }
+
+  .custom-disabled-btn {
+    background-color: #960028; /* Darker shade of danger */
+    border-color: #960028;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .custom-disabled-btn:hover,
+  .custom-disabled-btn:focus,
+  .custom-disabled-btn:active {
+    background-color: #960028; /* Keep the same color on hover, focus, and active states */
+    border-color: #960028;
+    box-shadow: none;
+  }
+</style>

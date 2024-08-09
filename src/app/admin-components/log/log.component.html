@@ -1,0 +1,172 @@
+<div class="container">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h1 class="card-title text-center mb-4">Admin Dashboard</h1>
+      <div class="d-flex flex-wrap justify-content-center mb-4">
+        <a routerLink="/inbox" class="btn btn-danger m-2">Inbox</a>
+        <a routerLink="/outbox" class="btn btn-danger m-2">Outbox</a>
+        <a routerLink="/send-message" class="btn btn-danger m-2">Send Message</a>
+        <a routerLink="/user-list" class="btn btn-danger m-2">View Users</a>
+        <a routerLink="/edit-create-user" class="btn btn-danger m-2">Create User</a>
+        <a routerLink="/log" class="btn btn-danger m-2 custom-disabled-btn">Logs</a>
+        <button class="btn btn-dark m-2" (click)="this.authService.logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h1 class="text-center my-4">User Logs</h1>
+  <div class="container">
+    <table class="table table-striped table-hover table-bordered">
+      <thead class="table-danger">
+      <tr>
+        <th (click)="sortLogs('username')">Username <span [ngClass]="getSortArrowClass('username')"></span></th>
+        <th (click)="sortLogs('requestTime')">Request Time <span [ngClass]="getSortArrowClass('requestTime')"></span></th>
+        <th (click)="sortLogs('ip')">IP <span [ngClass]="getSortArrowClass('ip')"></span></th>
+        <th (click)="sortLogs('browser')">Browser <span [ngClass]="getSortArrowClass('browser')"></span></th>
+        <th (click)="sortLogs('endpoint')">Endpoint <span [ngClass]="getSortArrowClass('endpoint')"></span></th>
+        <th (click)="sortLogs('method')">Method <span [ngClass]="getSortArrowClass('method')"></span></th>
+        <th (click)="sortLogs('statusCode')">Status Code <span [ngClass]="getSortArrowClass('statusCode')"></span></th>
+        <th (click)="sortLogs('message')">Message <span [ngClass]="getSortArrowClass('message')"></span></th>
+      </tr>
+      <tr>
+        <th><input type="text" class="form-control" [(ngModel)]="filterUsername" (input)="onFilterChange()" placeholder="Filter by username" /></th>
+        <th>
+          Start date:
+          <input type="date" class="form-control" [(ngModel)]="startDate" (change)="onFilterChange()" placeholder="Start date" />
+          End date:
+          <input type="date" class="form-control" [(ngModel)]="endDate" (change)="onFilterChange()" placeholder="End date" />
+        </th>
+        <th><input type="text" class="form-control" [(ngModel)]="filterIP" (input)="onFilterChange()" placeholder="Filter by IP" /></th>
+        <th><input type="text" class="form-control" [(ngModel)]="filterBrowser" (input)="onFilterChange()" placeholder="Filter by browser" /></th>
+        <th><input type="text" class="form-control" [(ngModel)]="filterEndpoint" (input)="onFilterChange()" placeholder="Filter by endpoint" /></th>
+        <th>
+          <select class="form-select" [(ngModel)]="filterMethod" (change)="onFilterChange()">
+            <option value="">All</option>
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+        </th>
+        <th><input type="text" class="form-control" [(ngModel)]="filterStatusCode" (input)="onFilterChange()" placeholder="Filter by status code" /></th>
+        <th></th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let log of logs">
+        <td>{{ log.username }}</td>
+        <td>{{ log.requestTime | date: 'MM/dd/yyyy, HH:mm' }}</td>
+        <td>{{ log.ip }}</td>
+        <td>{{ log.browser }}</td>
+        <td>{{ log.endpoint }}</td>
+        <td>{{ log.method }}</td>
+        <td>{{ log.statusCode }}</td>
+        <td>{{ log.message }}</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination-controls my-3">
+      <button
+        class="btn btn-outline-danger btn-sm"
+        (click)="pageChanged(p - 1)"
+        [disabled]="!canGoPrevious()"
+      >
+        Previous
+      </button>
+      <span class="mx-2">
+        Page:
+        <select
+          class="form-select form-select-sm d-inline-block w-auto"
+          [ngModel]="p"
+          (ngModelChange)="pageChanged($event)"
+        >
+          <option *ngFor="let page of pages" [value]="page">{{ page }}</option>
+        </select>
+        of {{ totalPages }}
+      </span>
+      <button
+        class="btn btn-outline-danger btn-sm"
+        (click)="pageChanged(p + 1)"
+        [disabled]="!canGoNext()"
+      >
+        Next
+      </button>
+    </div>
+
+    <div class="items-per-page text-center mt-3">
+      <label for="itemsPerPage" class="form-label me-2">Items per page:</label>
+      <input
+        id="itemsPerPage"
+        type="number"
+        class="form-control d-inline-block"
+        [(ngModel)]="itemsPerPage"
+        (change)="itemsPerPageChanged()"
+        style="width: 100px;"
+      />
+    </div>
+
+    <p *ngIf="logs.length > 0" class="text-center mt-3">
+      Total number of logs: {{ totalLogs }}
+    </p>
+  </div>
+
+</div>
+
+<style>
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pagination-controls button {
+    margin: 0 5px;
+  }
+
+  .pagination-controls select {
+    margin-left: 10px;
+  }
+
+  .sort-arrow {
+    font-size: 12px;
+    margin-left: 5px;
+  }
+
+  .sort-asc::after {
+    content: '▲';
+  }
+
+  .sort-desc::after {
+    content: '▼';
+  }
+
+  .items-per-page .form-control {
+    display: inline-block;
+    width: auto;
+    margin-left: 10px;
+  }
+
+  .filter-input {
+    width: 100%;
+    display: inline-block;
+  }
+
+  .custom-disabled-btn {
+    background-color: #960028; /* Darker shade of danger */
+    border-color: #960028;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .custom-disabled-btn:hover,
+  .custom-disabled-btn:focus,
+  .custom-disabled-btn:active {
+    background-color: #960028; /* Keep the same color on hover, focus, and active states */
+    border-color: #960028;
+    box-shadow: none;
+  }
+</style>

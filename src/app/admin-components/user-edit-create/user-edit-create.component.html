@@ -1,0 +1,174 @@
+<div class="container">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h1 class="card-title text-center mb-4">Admin Dashboard</h1>
+      <div class="d-flex flex-wrap justify-content-center mb-4">
+        <a routerLink="/inbox" class="btn btn-danger m-2">Inbox</a>
+        <a routerLink="/outbox" class="btn btn-danger m-2">Outbox</a>
+        <a routerLink="/send-message" class="btn btn-danger m-2">Send Message</a>
+        <a routerLink="/user-list" class="btn btn-danger m-2">View Users</a>
+        <a routerLink="/edit-create-user" *ngIf="!isEditMode" class="btn btn-danger m-2 custom-disabled-btn">Create User</a>
+        <a routerLink="/edit-create-user" *ngIf="isEditMode" class="btn btn-danger m-2">Create User</a>
+        <a routerLink="/log" class="btn btn-danger m-2">Logs</a>
+        <button class="btn btn-dark m-2" (click)="this.authService.logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6 register-user">
+    <!-- form card register -->
+    <div class="card card-outline-secondary" style="margin-top: 50px; margin-bottom: 50px">
+      <div class="card-header">
+        <h1 class="mb-0" style="text-align: center">{{ isEditMode ? 'Edit User' : 'Create User' }}</h1>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="isEditMode ? editForm : userForm" (ngSubmit)="onSubmit()">
+
+          <div class="mb-3">
+            <label for="inputUsername">Username</label>
+            <input class="form-control" type="text" formControlName="username" id="inputUsername"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['username'].errors?.['required']"
+            >
+              Username is required.
+            </div>
+          </div>
+
+          <div class="mb-3" *ngIf="!isEditMode">
+            <label for="inputPassword">Password</label>
+            <input class="form-control" type="password" formControlName="password" id="inputPassword"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['password'].errors?.['required']"
+            >
+              Password is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="inputName">Name</label>
+            <input class="form-control" type="text" formControlName="name" id="inputName"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['name'].errors?.['required']"
+            >
+              Name is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="inputSurname">Surname</label>
+            <input class="form-control" type="text" formControlName="surname" id="inputSurname"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['surname'].errors?.['required']"
+            >
+              Surname is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="inputBirthdate">Birthdate</label>
+            <input class="form-control" type="date" formControlName="birthdate" id="inputBirthdate"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['birthdate'].errors?.['required']"
+            >
+              Birthdate is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="inputGender">Gender</label>
+            <select
+              class="custom-select form-control"
+              (change)="updateGender($event.target.value)"
+              formControlName="gender"
+              id="inputGender"
+            >
+              <option value="">Choose...</option>
+              <option
+                *ngFor="let userGender of UserGender"
+                value="{{ userGender }}"
+              >
+                {{ userGender }}
+              </option>
+            </select>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['gender'].errors?.['required']"
+            >
+              Choose gender.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="inputEmail">Email</label>
+            <input class="form-control" type="text" formControlName="email" id="inputEmail"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['email'].errors?.['required']"
+            >
+              Enter your email.
+            </div>
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['email'].errors?.['pattern']"
+            >
+              Enter valid email.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="inputLocation">Location</label>
+            <input class="form-control" type="text" formControlName="location" id="inputLocation"/>
+            <!-- error -->
+            <div
+              class="text-danger"
+              *ngIf="submitted && myForm['location'].errors?.['required']"
+            >
+              Location is required.
+            </div>
+          </div>
+
+          <div class="form-check">
+            <input id="isAdmin" formControlName="isAdmin" class="form-check-input" type="checkbox"/>
+            <label for="isAdmin" class="form-check-label">Admin?</label>
+          </div>
+
+          <div class="d-grid">
+            <button class="btn btn-danger btn-block" type="submit">{{ isEditMode ? 'Update' : 'Create' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- form card register -->
+  </div>
+</div>
+
+<style>
+  .custom-disabled-btn {
+    background-color: #960028; /* Darker shade of danger */
+    border-color: #960028;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .custom-disabled-btn:hover,
+  .custom-disabled-btn:focus,
+  .custom-disabled-btn:active {
+    background-color: #960028; /* Keep the same color on hover, focus, and active states */
+    border-color: #960028;
+    box-shadow: none;
+  }
+</style>
