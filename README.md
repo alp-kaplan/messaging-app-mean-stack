@@ -1,1 +1,1 @@
-This repository contains only the backend and src folders of the project.
+This repository contains only "backend" and "src" folders of the project.
